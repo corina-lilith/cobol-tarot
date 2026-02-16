@@ -5,7 +5,7 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT TAROT-FILE ASSIGN TO "cards.dat"
-               ORGANISATION IS LINE SEQUENTIAL.
+               ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
@@ -14,29 +14,55 @@
 
        WORKING-STORAGE SECTION.
 
-       77 WS-EOF PIC X VALUE "N".
-       77 WS-CARD-COUNT PIC 9(4) VALUE 0.
-       77 WS-RANDOM PIC 9(4).
+       01 WS-STATE.
+           05 WS-EOF             PIC X     VALUE "N".
+           05 WS-QUIT            PIC X     VALUE "N".
+           05 WS-MENU-CHOICE    PIC X.
+           05 WS-CARD-COUNT     PIC 9(4)  VALUE 0.
+           05 WS-RANDOM         PIC 9(4).
+           05 WS-READING-COUNT  PIC 9     VALUE 1.
 
        01 WS-TAROT-TABLE.
            05 WS-TAROT-ENTRY OCCURS 100 TIMES.
-               10 WS-CARD-ID PIC X(5).
-               10 WS-CARD-NAME PIC X(50).
+               10 WS-CARD-ID      PIC X(5).
+               10 WS-CARD-NAME    PIC X(50).
                10 WS-CARD-MEANING PIC X(400).
-       
-       01 WS-ID-FIELD PIC X(5).
-       01 WS-NAME-FIELD PIC X(50).
+
+       01 WS-ID-FIELD      PIC X(5).
+       01 WS-NAME-FIELD    PIC X(50).
        01 WS-MEANING-FIELD PIC X(400).
 
-
-
        PROCEDURE DIVISION.
+       MAIN.
+           PERFORM LOAD-DECK
+           PERFORM MENU-LOOP UNTIL WS-QUIT = "Y"
+           STOP RUN.
 
-       PERFORM LOAD-DECK
-       PERFORM CARD-OF-THE-DAY
+       MENU-LOOP.
+           PERFORM SHOW-MENU
+           PERFORM PROCESS-MENU-CHOICE.
 
-       STOP RUN.
+       SHOW-MENU.
+           DISPLAY " "
+           DISPLAY "=== Tarot Reader ==="
+           DISPLAY "1) Card of the Day"
+           DISPLAY "2) 3-Card Reading (Past / Present / Future)"
+           DISPLAY "7) Quit"
+           DISPLAY "Enter your choice: "
+           ACCEPT WS-MENU-CHOICE.
 
+       PROCESS-MENU-CHOICE.
+           EVALUATE WS-MENU-CHOICE
+               WHEN "1"
+                   PERFORM CARD-OF-THE-DAY
+               WHEN "2"
+                   PERFORM NEW-READING
+               WHEN "7"
+                   MOVE "Y" TO WS-QUIT
+                   DISPLAY "Goodbye!"
+               WHEN OTHER
+                   DISPLAY "Invalid option. Use numbers 1, 2, or 7."
+           END-EVALUATE.
 
        LOAD-DECK.
            OPEN INPUT TAROT-FILE
@@ -47,26 +73,62 @@
                    NOT AT END
                        ADD 1 TO WS-CARD-COUNT
                        UNSTRING TAROT-RECORD
-                       DELIMITED BY "|"
-                       INTO WS-ID-FIELD
-                           WS-NAME-FIELD
-                           WS-MEANING-FIELD
+                           DELIMITED BY "|"
+                           INTO WS-ID-FIELD
+                                WS-NAME-FIELD
+                                WS-MEANING-FIELD
                        MOVE WS-ID-FIELD
                            TO WS-CARD-ID (WS-CARD-COUNT)
                        MOVE WS-NAME-FIELD
                            TO WS-CARD-NAME (WS-CARD-COUNT)
                        MOVE WS-MEANING-FIELD
                            TO WS-CARD-MEANING (WS-CARD-COUNT)
-                END-READ
+               END-READ
            END-PERFORM
-
            CLOSE TAROT-FILE.
 
-           CARD-OF-THE-DAY.
-               COMPUTE WS-RANDOM = FUNCTION RANDOM * WS-CARD-COUNT + 1
+       CARD-OF-THE-DAY.
+           DISPLAY " "
+           DISPLAY "Your Card of the Day"
+           DISPLAY "-------------------"
+           PERFORM DRAW-ONE-CARD
 
-               DISPLAY " "
-               DISPLAY "Your Card of the Day "
-               DISPLAY WS-CARD-NAME (WS-RANDOM)
-               DISPLAY WS-CARD-MEANING (WS-RANDOM)
-               DISPLAY " ".
+           DISPLAY "-------------------"
+           DISPLAY "Press Enter to return to the menu."
+           ACCEPT WS-MENU-CHOICE.
+
+       DISPLAY-READING-LABEL.
+           EVALUATE WS-READING-COUNT
+               WHEN 1
+                   DISPLAY "Past:"
+               WHEN 2
+                   DISPLAY "Present:"
+               WHEN 3
+                   DISPLAY "Future:"
+           END-EVALUATE.
+
+       DRAW-ONE-CARD.
+           COMPUTE WS-RANDOM = FUNCTION RANDOM * WS-CARD-COUNT + 1
+
+           DISPLAY WS-CARD-NAME (WS-RANDOM)
+           DISPLAY WS-CARD-MEANING (WS-RANDOM)
+           DISPLAY " ".
+
+       NEW-READING.
+           DISPLAY " "
+           DISPLAY "Your Past, Present, and Future reading"
+           DISPLAY "-------------------"
+
+           MOVE 1 TO WS-READING-COUNT
+
+           PERFORM NEW-READING-LOOP
+               UNTIL WS-READING-COUNT > 3.
+
+           DISPLAY "-------------------"
+           DISPLAY "Press Enter to return to the menu."
+           ACCEPT WS-MENU-CHOICE.
+
+       NEW-READING-LOOP.
+           PERFORM DISPLAY-READING-LABEL
+           PERFORM DRAW-ONE-CARD
+           ADD 1 TO WS-READING-COUNT.
