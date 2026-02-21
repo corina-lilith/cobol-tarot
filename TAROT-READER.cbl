@@ -19,8 +19,8 @@
        WORKING-STORAGE SECTION.
 
        01 WS-STATE.
-           05 WS-EOF             PIC X     VALUE "N".
-           05 WS-QUIT            PIC X     VALUE "N".
+           05 WS-EOF            PIC X     VALUE "N".
+           05 WS-QUIT           PIC X     VALUE "N".
            05 WS-MENU-CHOICE    PIC X.
            05 WS-CARD-COUNT     PIC 9(4)  VALUE 0.
            05 WS-RANDOM         PIC 9(4).
