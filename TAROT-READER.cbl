@@ -33,7 +33,6 @@
        01 WS-MEANING-FIELD PIC X(400).
 
        PROCEDURE DIVISION.
-       MAIN.
            PERFORM LOAD-DECK
            PERFORM MENU-LOOP UNTIL WS-QUIT = "Y"
            STOP RUN.
