@@ -11,10 +11,10 @@ Input 2 on your keyboard to show three card that inform the user of their past, 
 Input 3 on your keyboard to return the history of the user's readings by using memory. It will only remember the readings from that particular session. Once they quit, the memory is wiped.
 
 ## Option 4
-Input 4 then your date of birth to receive your star sign, the associated element, and the attributes.
+Input 4 and then the current date to find out the current moon phase.
 
 ## Option 5
-Input 5 and then the current date to find out the current moon phase.
+Input 5 then your date of birth to receive your star sign, the associated element, and the attributes.
 
 ## Option 6
 Input 6 then your star sign to find out your gemstone.
