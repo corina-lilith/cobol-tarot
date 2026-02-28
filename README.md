@@ -30,3 +30,13 @@ cobc -x TAROT-READER.cbl
 
 # To Run:
 ./TAROT-READER
+
+
+# NOTES
+
+Zodiac date ranges were initially stored as a single string (e.g. "November 22 - December 21"). These were split into separate start and end fields in MMDD numeric format to allow the program to compare a user's date of birth against each range.
+
+When December rolls around, the month number resets downward, so DDMM ranges can end up backwards numerically.
+
+Start: 2211, End: 2112, Birthday: 0112
+Is 0112 between 2211 and 2112? ❌ Mathematically, 2112 is less than 2211, so the range is broken.
