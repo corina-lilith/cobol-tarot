@@ -113,7 +113,7 @@
 
        REVEAL-ZODIAC.
            DISPLAY " "
-           DISPLAY "Enter your date of birth: "
+           DISPLAY "Enter your date of birth (MMDD): "
            ACCEPT WS-USER-BIRTH
 
            MOVE "N" TO WS-ZODIAC-EOF

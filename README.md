@@ -14,10 +14,10 @@ Input 3 on your keyboard to return the history of the user's readings by using m
 Input 4 and then the current date to find out the current moon phase.
 
 ## Option 5
-Input 5 then your date of birth to receive your star sign, the associated element, and the attributes.
+Input 5 then your date of birth as DDMM to receive your zodiac, the associated element, and the attributes.
 
 ## Option 6
-Input 6 then your star sign to find out your gemstone.
+Input 6 then your zodiac to find out your gemstone.
 
 ## Option 7
 Input 7 on your keyboard to quit the terminal app and close everything down. You will need to follow the directions "To Run" to spin it up again.
