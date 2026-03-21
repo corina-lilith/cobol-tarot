@@ -39,6 +39,7 @@
        01 WS-ZODIAC-STATE.
            05 WS-ZODIAC-EOF PIC X VALUE "N".
            05 WS-FOUND PIC X VALUE "N".
+           05 WS-ZODIAC-MODE   PIC X VALUE "Z".
        
        01 WS-ZODIAC-ID-FIELD       PIC X(5).
        01 WS-ZODIAC-NAME-FIELD     PIC X(15).
@@ -78,14 +79,17 @@
                WHEN "2"
                    PERFORM NEW-READING
                WHEN "5"
-                   PERFORM REVEAL-ZODIAC
+                   MOVE "Z" TO WS-ZODIAC-MODE
+                   PERFORM REVEAL-ZODIAC-DETAILS
                WHEN "6"
-                   PERFORM REVEAL-GEMSTONE
+                   MOVE "G" TO WS-ZODIAC-MODE
+                   PERFORM REVEAL-ZODIAC-DETAILS
                WHEN "7"
                    MOVE "Y" TO WS-QUIT
                    DISPLAY "Goodbye!"
                WHEN OTHER
-                   DISPLAY "Invalid option. Use numbers 1, 2, 6, or 7."
+                   DISPLAY "Invalid option. "
+                   DISPLAY "Use numbers 1, 2, 5, 6, or 7."
            END-EVALUATE.
 
        LOAD-DECK.
@@ -111,103 +115,77 @@
            END-PERFORM
            CLOSE TAROT-FILE.
 
+       REVEAL-ZODIAC-DETAILS.
+           IF WS-ZODIAC-MODE = "Z"
+               DISPLAY "Enter your date of birth (MMDD): "
+               ACCEPT WS-USER-BIRTH
+           ELSE
+               DISPLAY "Enter your zodiac sign (e.g. Virgo): "
+               ACCEPT WS-USER-ZODIAC
+           END-IF
+
+           MOVE "N" TO WS-ZODIAC-EOF
+           MOVE "N" TO WS-FOUND
+
+           OPEN INPUT ZODIAC-FILE
+
+           PERFORM UNTIL WS-ZODIAC-EOF = "Y" OR WS-FOUND = "Y"
+               READ ZODIAC-FILE
+                   AT END
+                       MOVE "Y" TO WS-ZODIAC-EOF
+                   NOT AT END
+                       UNSTRING ZODIAC-RECORD
+                           DELIMITED BY "|"
+                           INTO WS-ZODIAC-ID-FIELD
+                                WS-ZODIAC-NAME-FIELD
+                                WS-ZODIAC-ELEMENT-FIELD
+                                WS-ZODIAC-START-DATE-FIELD
+                                WS-ZODIAC-END-DATE-FIELD
+                                WS-ZODIAC-TRAITS-FIELD
+                                WS-GEMSTONE-FIELD
+
+           IF WS-ZODIAC-MODE = "Z"
+               PERFORM REVEAL-ZODIAC
+           ELSE
+               PERFORM REVEAL-GEMSTONE
+           END-IF
+           END-READ               
+           END-PERFORM
+
+           CLOSE ZODIAC-FILE
+
+           IF WS-FOUND = "N"
+               DISPLAY " "
+               DISPLAY "Sorry, I couldn't find those details."
+               DISPLAY "Please try again."
+           END-IF
+
+           DISPLAY "-------------------"
+           DISPLAY "Press Enter to return to the menu."
+           ACCEPT WS-MENU-CHOICE.
+
+      
        REVEAL-ZODIAC.
-           DISPLAY " "
-           DISPLAY "Enter your date of birth (MMDD): "
-           ACCEPT WS-USER-BIRTH
+           IF WS-USER-BIRTH >= WS-ZODIAC-START-DATE-FIELD
+           AND WS-USER-BIRTH <= WS-ZODIAC-END-DATE-FIELD
 
-           MOVE "N" TO WS-ZODIAC-EOF
-           MOVE "N" TO WS-FOUND
-
-           OPEN INPUT ZODIAC-FILE
-
-           PERFORM UNTIL WS-ZODIAC-EOF = "Y" OR WS-FOUND = "Y"
-               READ ZODIAC-FILE
-                   AT END
-                       MOVE "Y" TO WS-ZODIAC-EOF
-                   NOT AT END
-                       UNSTRING ZODIAC-RECORD
-                           DELIMITED BY "|"
-                           INTO WS-ZODIAC-ID-FIELD
-                                WS-ZODIAC-NAME-FIELD
-                                WS-ZODIAC-ELEMENT-FIELD
-                                WS-ZODIAC-START-DATE-FIELD
-                                WS-ZODIAC-END-DATE-FIELD
-                                WS-ZODIAC-TRAITS-FIELD
-                                WS-GEMSTONE-FIELD
-                          
-                          IF WS-USER-BIRTH >= WS-ZODIAC-START-DATE-FIELD
-                           AND WS-USER-BIRTH <= WS-ZODIAC-END-DATE-FIELD
-
-                           DISPLAY "Your zodiac sign is: "
-                                WS-ZODIAC-NAME-FIELD
-                            DISPLAY "Your zodiac element is: "
-                                WS-ZODIAC-ELEMENT-FIELD
-                            DISPLAY "Your zodiac traits are: "
-                                WS-ZODIAC-TRAITS-FIELD
-                            MOVE "Y" TO WS-FOUND
-                         END-IF
-                END-READ
-           END-PERFORM
-
-           CLOSE ZODIAC-FILE
-
-           IF WS-FOUND = "N"
-               DISPLAY " "
-               DISPLAY "Sorry, I couldn't find that zodiac sign."
-               DISPLAY "Please try again (MMDD)."
-           END-IF
-
-           DISPLAY "-------------------"
-           DISPLAY "Press Enter to return to the menu."
-           ACCEPT WS-MENU-CHOICE.
-
+               DISPLAY "Your zodiac sign is: "
+                   WS-ZODIAC-NAME-FIELD
+               DISPLAY "Your zodiac element is: "
+                   WS-ZODIAC-ELEMENT-FIELD
+               DISPLAY "Your zodiac traits are: "
+                   WS-ZODIAC-TRAITS-FIELD
+               MOVE "Y" TO WS-FOUND
+           END-IF.
+       
        REVEAL-GEMSTONE.
-           DISPLAY " "
-           DISPLAY "Enter your zodiac sign (e.g Virgo): "
-           ACCEPT WS-USER-ZODIAC
-
-           MOVE "N" TO WS-ZODIAC-EOF
-           MOVE "N" TO WS-FOUND
-
-           OPEN INPUT ZODIAC-FILE
-
-           PERFORM UNTIL WS-ZODIAC-EOF = "Y" OR WS-FOUND = "Y"
-               READ ZODIAC-FILE
-                   AT END
-                       MOVE "Y" TO WS-ZODIAC-EOF
-                   NOT AT END
-                       UNSTRING ZODIAC-RECORD
-                           DELIMITED BY "|"
-                           INTO WS-ZODIAC-ID-FIELD
-                                WS-ZODIAC-NAME-FIELD
-                                WS-ZODIAC-ELEMENT-FIELD
-                                WS-ZODIAC-START-DATE-FIELD
-                                WS-ZODIAC-END-DATE-FIELD
-                                WS-ZODIAC-TRAITS-FIELD
-                                WS-GEMSTONE-FIELD
-
-                       IF WS-ZODIAC-NAME-FIELD = WS-USER-ZODIAC
-                           DISPLAY " "
-                           DISPLAY "Your gemstone for "
-                               WS-ZODIAC-NAME-FIELD "is:"
-                           DISPLAY WS-GEMSTONE-FIELD
-                           MOVE "Y" TO WS-FOUND
-                       END-IF
-               END-READ
-           END-PERFORM
-
-           CLOSE ZODIAC-FILE
-
-           IF WS-FOUND = "N"
+           IF WS-ZODIAC-NAME-FIELD = WS-USER-ZODIAC
                DISPLAY " "
-               DISPLAY "Sorry, I couldn't find that zodiac sign."
-               DISPLAY "Please try again (e.g., Capricorn)."
-           END-IF
-
-           DISPLAY "-------------------"
-           DISPLAY "Press Enter to return to the menu."
-           ACCEPT WS-MENU-CHOICE.
+               DISPLAY "Your gemstone for "
+                   WS-ZODIAC-NAME-FIELD "is:"
+               DISPLAY WS-GEMSTONE-FIELD
+               MOVE "Y" TO WS-FOUND
+           END-IF.
 
        CARD-OF-THE-DAY.
            DISPLAY " "
