@@ -5,7 +5,7 @@ Converted from an old Python project, this COBOL Tarot Reader is run in the term
 Input 1 on your keyboard to show "Card of the Day". This function picks a random card for the user to read.
 
 ## Option 2
-Input 2 on your keyboard to show three card that inform the user of their past, present, and future cards. This function builds upon the single random card and draws three random cards.
+Input 2 on your keyboard to show three cards that inform the user of their past, present, and future cards. This function builds upon the single random card and draws three random cards.
 
 ## Option 3
 Input 3 on your keyboard to return the history of the user's readings by using memory. It will only remember the readings from that particular session. Once they quit, the memory is wiped.

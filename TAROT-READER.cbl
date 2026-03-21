@@ -31,7 +31,16 @@
                10 WS-CARD-ID      PIC X(5).
                10 WS-CARD-NAME    PIC X(50).
                10 WS-CARD-MEANING PIC X(400).
-
+       
+       01 WS-READING-HISTORY.
+           05 WS-HISTORY OCCURS 3 TIMES.
+               10 WS-PAST-CARD-NAME PIC X(50).
+               10 WS-PRESENT-CARD-NAME PIC X(50).
+               10 WS-FUTURE-CARD-NAME PIC X(50).
+       
+       01 WS-HIST-COUNT PIC 9 VALUE 0.
+       01 WS-HIST-IDZ PIC 9 VALUE 0.
+       
        01 WS-ID-FIELD      PIC X(5).
        01 WS-NAME-FIELD    PIC X(50).
        01 WS-MEANING-FIELD PIC X(400).
@@ -65,6 +74,7 @@
            DISPLAY " "
            DISPLAY "=== Tarot Reader ==="
            DISPLAY "1) Card of the Day"
+           DISPLAY "3) View history of readings (current session only)"
            DISPLAY "2) 3-Card Reading (Past / Present / Future)"
            DISPLAY "5) Enter your date of birth to reveal zodiac (MMDD)"
            DISPLAY "6) Enter zodiac to reveal gemstone"
@@ -78,6 +88,8 @@
                    PERFORM CARD-OF-THE-DAY
                WHEN "2"
                    PERFORM NEW-READING
+               WHEN "3"
+                   PERFORM READING-HISTORY.
                WHEN "5"
                    MOVE "Z" TO WS-ZODIAC-MODE
                    PERFORM REVEAL-ZODIAC-DETAILS
@@ -232,3 +244,7 @@
            PERFORM DISPLAY-READING-LABEL
            PERFORM DRAW-ONE-CARD
            ADD 1 TO WS-READING-COUNT.
+
+       
+       READING-HISTORY.
+           
