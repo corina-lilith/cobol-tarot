@@ -39,7 +39,7 @@
                10 WS-FUTURE-CARD-NAME PIC X(50).
        
        01 WS-HIST-COUNT PIC 9 VALUE 0.
-       01 WS-HIST-IDZ PIC 9 VALUE 0.
+       01 WS-HIST-IDX PIC 9 VALUE 0.
        
        01 WS-ID-FIELD      PIC X(5).
        01 WS-NAME-FIELD    PIC X(50).
@@ -74,8 +74,8 @@
            DISPLAY " "
            DISPLAY "=== Tarot Reader ==="
            DISPLAY "1) Card of the Day"
-           DISPLAY "3) View history of readings (current session only)"
            DISPLAY "2) 3-Card Reading (Past / Present / Future)"
+           DISPLAY "3) View history of readings (current session only)"
            DISPLAY "5) Enter your date of birth to reveal zodiac (MMDD)"
            DISPLAY "6) Enter zodiac to reveal gemstone"
            DISPLAY "7) Quit"
@@ -89,7 +89,7 @@
                WHEN "2"
                    PERFORM NEW-READING
                WHEN "3"
-                   PERFORM READING-HISTORY.
+                   PERFORM SHOW-HISTORY
                WHEN "5"
                    MOVE "Z" TO WS-ZODIAC-MODE
                    PERFORM REVEAL-ZODIAC-DETAILS
@@ -101,7 +101,7 @@
                    DISPLAY "Goodbye!"
                WHEN OTHER
                    DISPLAY "Invalid option. "
-                   DISPLAY "Use numbers 1, 2, 5, 6, or 7."
+                   DISPLAY "Use numbers 1, 2, 3, 5, 6, or 7."
            END-EVALUATE.
 
        LOAD-DECK.
@@ -233,6 +233,10 @@
 
            MOVE 1 TO WS-READING-COUNT
 
+           IF WS-HIST-COUNT < 3
+               ADD 1 TO WS-HIST-COUNT
+           END-IF.
+
            PERFORM NEW-READING-LOOP
                UNTIL WS-READING-COUNT > 3.
 
@@ -243,8 +247,35 @@
        NEW-READING-LOOP.
            PERFORM DISPLAY-READING-LABEL
            PERFORM DRAW-ONE-CARD
+           EVALUATE WS-READING-COUNT
+               WHEN 1
+                   MOVE WS-CARD-NAME(WS-RANDOM) TO 
+                   WS-PAST-CARD-NAME(WS-HIST-COUNT)
+               WHEN 2
+                   MOVE WS-CARD-NAME(WS-RANDOM) TO 
+                   WS-PRESENT-CARD-NAME(WS-HIST-COUNT)
+               WHEN 3
+                   MOVE WS-CARD-NAME(WS-RANDOM) TO 
+                   WS-FUTURE-CARD-NAME(WS-HIST-COUNT)
+           END-EVALUATE.
            ADD 1 TO WS-READING-COUNT.
 
        
-       READING-HISTORY.
+       SHOW-HISTORY.
+       IF WS-HIST-COUNT = 0
+           DISPLAY  "No readings yet in this session"
+       ELSE
+       PERFORM VARYING WS-HIST-IDX FROM 1 BY 1
+           UNTIL WS-HIST-IDX > WS-HIST-COUNT
+           DISPLAY "Reading " WS-HIST-IDX ":"
+           DISPLAY "Past: " WS-PAST-CARD-NAME(WS-HIST-IDX)
+           DISPLAY "Present: " WS-PRESENT-CARD-NAME(WS-HIST-IDX)
+           DISPLAY "Future: " WS-FUTURE-CARD-NAME(WS-HIST-IDX)
+       END-PERFORM
+       END-IF
+
+           DISPLAY "-------------------"
+           DISPLAY "Press Enter to return to the menu."
+           ACCEPT WS-MENU-CHOICE.
+       
            
