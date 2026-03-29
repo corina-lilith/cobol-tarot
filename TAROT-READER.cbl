@@ -38,6 +38,10 @@
                10 WS-PRESENT-CARD-NAME PIC X(50).
                10 WS-FUTURE-CARD-NAME PIC X(50).
        
+       01 WS-USER-CARD-ENTRY PIC X(20).
+       01 WS-CARD-FOUND-FLAG PIC X VALUE "N".
+       01 WS-INDEX PIC 9(3).
+  
        01 WS-HIST-COUNT PIC 9 VALUE 0.
        01 WS-HIST-IDX PIC 9 VALUE 0.
        
@@ -76,6 +80,7 @@
            DISPLAY "1) Card of the Day"
            DISPLAY "2) 3-Card Reading (Past / Present / Future)"
            DISPLAY "3) View history of readings (current session only)"
+           DISPLAY "4) Enter tarot card name to reveal it's meaning"
            DISPLAY "5) Enter your date of birth to reveal zodiac (MMDD)"
            DISPLAY "6) Enter zodiac to reveal gemstone"
            DISPLAY "7) Quit"
@@ -90,6 +95,8 @@
                    PERFORM NEW-READING
                WHEN "3"
                    PERFORM SHOW-HISTORY
+               WHEN "4"
+                   PERFORM CARD-DEFINITION
                WHEN "5"
                    MOVE "Z" TO WS-ZODIAC-MODE
                    PERFORM REVEAL-ZODIAC-DETAILS
@@ -101,7 +108,7 @@
                    DISPLAY "Goodbye!"
                WHEN OTHER
                    DISPLAY "Invalid option. "
-                   DISPLAY "Use numbers 1, 2, 3, 5, 6, or 7."
+                   DISPLAY "Use numbers 1, 2, 3, 4, 5, 6, or 7."
            END-EVALUATE.
 
        LOAD-DECK.
@@ -278,4 +285,31 @@
            DISPLAY "Press Enter to return to the menu."
            ACCEPT WS-MENU-CHOICE.
        
-           
+       CARD-DEFINITION.
+       DISPLAY "Enter the Tarot Card name"
+       ACCEPT WS-USER-CARD-ENTRY
+       MOVE "N" TO WS-FOUND
+       PERFORM VARYING WS-INDEX FROM 1 BY 1
+           UNTIL WS-INDEX > WS-CARD-COUNT
+           OR WS-FOUND = "Y"
+       IF FUNCTION UPPER-CASE(WS-CARD-NAME(WS-INDEX)) = 
+           FUNCTION UPPER-CASE(WS-USER-CARD-ENTRY)
+           DISPLAY "Card Name: " WS-CARD-NAME(WS-INDEX)
+           DISPLAY "Card Meaning: " WS-CARD-MEANING(WS-INDEX)
+           MOVE "Y" TO WS-FOUND
+       END-IF
+       END-PERFORM
+
+
+       IF WS-FOUND = "N"
+       DISPLAY " "
+       DISPLAY "Sorry, I couldn't find that card."
+       DISPLAY "Please check the spelling and try again."
+       END-IF
+       DISPLAY "-------------------"
+       DISPLAY "Press Enter to return to the menu."
+       ACCEPT WS-MENU-CHOICE.
+
+
+
+       

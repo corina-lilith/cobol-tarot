@@ -11,7 +11,7 @@ Input 2 on your keyboard to show three cards that inform the user of their past,
 Input 3 on your keyboard to return the history of the user's readings by using memory. It will only remember the readings from that particular session. Once they quit, the memory is wiped.
 
 ## Option 4
-Input 4 and then the current date to find out the current moon phase.
+Input 4 and then the tarot card name to reveal it's details.
 
 ## Option 5
 Input 5 then your date of birth as DDMM to receive your zodiac, the associated element, and the attributes.
